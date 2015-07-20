@@ -1,8 +1,7 @@
 package com.lovejoy777.rroandlayersmanager;
 
-import android.animation.Animator;
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.*;
 import android.content.pm.ApplicationInfo;
@@ -23,14 +22,18 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
+import android.transition.ChangeImageTransform;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -44,10 +47,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-/**
- * Created by Niklas on 02.06.2015.
- */
-public class OverlayDetailActivity extends Fragment {
+public class OverlayDetailActivity extends AppCompatActivity {
 
     int NumberOfOverlays = 0;
 
@@ -84,24 +84,36 @@ public class OverlayDetailActivity extends Fragment {
     private List<String> OverlayNameList = null;
     private CoordinatorLayout cordLayout = null;
 
+    //TEMP
+    private Activity getActivity() {
+        return this;
+    }
 
-    /**
-     * Called when the activity is first created.
-     */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
-            savedInstanceState) {
-        FragmentActivity faActivity = (FragmentActivity) super.getActivity();
-        cordLayout = (CoordinatorLayout) inflater.inflate(R.layout.fragment_plugindetail, container, false);
-        setHasOptionsMenu(true);
+    public void onCreate(Bundle savedInstanceState) {
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.fragment_plugindetail);
+        // FragmentActivity faActivity = (FragmentActivity) getActivity();
+        // cordLayout = (CoordinatorLayout) inflater.inflate(R.layout.fragment_plugindetail, container, false);
+        // setHasOptionsMenu(true);
 
-        getIntent();
+
+         //getWindow().setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.my_transition));
+
+       // getWindow().setEnterTransition(new ChangeImageTransform());
+
+        cordLayout = (CoordinatorLayout) findViewById(R.id.main_content);
+
+        getGivenIntent();
 
         bindOpService();
 
+        //loadBackdrop();
+
         createLayouts();
 
-        return cordLayout;
+        //return cordLayout;
     }
 
 
@@ -281,6 +293,8 @@ public class OverlayDetailActivity extends Fragment {
         StyleSpecificOverlayString = bundle.getString("Layers_StyleSpecificOverlays");
 
 
+        Log.d("ThemeName: ", ThemeName);
+
         //Use the received data
         ThemeFolder = Environment.getExternalStorageDirectory() + "/Overlays/" + ThemeName.replaceAll(" ", "") + "/";
         ThemeFolderGeneral = ThemeFolder + "General/";
@@ -325,7 +339,9 @@ public class OverlayDetailActivity extends Fragment {
 
         CollapsingToolbarLayout collapsingToolbar =
                 (CollapsingToolbarLayout) cordLayout.findViewById(R.id.collapsing_toolbar);
+
         collapsingToolbar.setTitle(ThemeName);
+        collapsingToolbar.setExpandedTitleColor(Color.TRANSPARENT);
 
         for (int i = 0; i < OverlayColorList.size(); i++) {
             OverlayColorListPublic.add(OverlayColorList.get(i));
@@ -381,8 +397,9 @@ public class OverlayDetailActivity extends Fragment {
 
     }
 
-    private void getIntent() {
-        Bundle bundle2 = this.getArguments();
+    private void getGivenIntent() {
+        Bundle bundle2 = this.getIntent().getExtras();
+
         if (bundle2 != null) {
             category = bundle2.getString(com.lovejoy777.rroandlayersmanager.menu.BUNDLE_EXTRAS_CATEGORY);
             package2 = bundle2.getString(menu.BUNDLE_EXTRAS_PACKAGENAME);
@@ -390,8 +407,7 @@ public class OverlayDetailActivity extends Fragment {
     }
 
     private void loadBackdrop() {
-        ImageView imageView = (ImageView) cordLayout.findViewById(R.id.backdrop);
-
+        final ImageView imageView = (ImageView) cordLayout.findViewById(R.id.backdrop);
 
         final String packName = package2;
         String mDrawableName = "heroimage";
@@ -408,9 +424,10 @@ public class OverlayDetailActivity extends Fragment {
         }
         Drawable myDrawable = mApk1Resources.getDrawable(mDrawableResID);
         //ImageView imageView = (ImageView) cordLayout.findViewById(R.id.backdrop);
-        if (myDrawable != null) {
+      //  if (myDrawable != null) {
             imageView.setImageDrawable(myDrawable);
-        }
+      //  }
+
         final CollapsingToolbarLayout Collapsingtoolbar = (CollapsingToolbarLayout) cordLayout.findViewById(R.id.collapsing_toolbar);
 
 
@@ -438,45 +455,25 @@ public class OverlayDetailActivity extends Fragment {
                 mFab.startAnimation(fadeInAnimation);
             }
         });
-        Animator reveal = ViewAnimationUtils.createCircularReveal(imageView,
-                imageView.getWidth() / 2,
-                imageView.getHeight() / 2,
-                0,
-                imageView.getHeight() * 2);
-        reveal.setDuration(750);
-        reveal.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                loadScreenshotCardview();
-                receiveAndUseData();
-                Animation fadeInAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fadein);
-                LinearLayout WN = (LinearLayout) cordLayout.findViewById(R.id.lin2);
-                WN.setVisibility(View.VISIBLE);
-                WN.startAnimation(fadeInAnimation);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (isAdded()) {
-                    loadOverlayCardviews();
-                    createThemeFolder();
-                    generateFilepaths();
-                }
 
 
-            }
+        loadScreenshotCardview();
+        receiveAndUseData();
+        loadOverlayCardviews();
+        createThemeFolder();
+        generateFilepaths();
+/*
+        loadScreenshotCardview();
+        receiveAndUseData();
 
-            @Override
-            public void onAnimationCancel(Animator animation) {
+        LinearLayout WN = (LinearLayout) cordLayout.findViewById(R.id.lin2);
+        WN.setVisibility(View.VISIBLE);
 
-            }
+        loadOverlayCardviews();
+        createThemeFolder();
+        generateFilepaths();
+*/
 
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-        reveal.start();
     }
 
     private void loadBackdrop2() {
@@ -971,14 +968,14 @@ public class OverlayDetailActivity extends Fragment {
         }
 
         protected void onPostExecute(Void result) {
-            if (isAdded()) {
-                UncheckAllCheckBoxes("Uncheck");
-                installEverything.setChecked(false);
-                //appendLog(OverlayNameList);
+            // if (isAdded()) {
+            UncheckAllCheckBoxes("Uncheck");
+            installEverything.setChecked(false);
+            //appendLog(OverlayNameList);
 
-                progress2.dismiss();
-                installationFinishedSnackBar(); //show snackbar with option to reboot
-            }
+            progress2.dismiss();
+            installationFinishedSnackBar(); //show snackbar with option to reboot
+            //  }
         }
     }
 
@@ -1040,18 +1037,18 @@ public class OverlayDetailActivity extends Fragment {
         }
 
         protected void onPostExecute(Void result) {
-            if (isAdded()) {
-                //close Dialog
-                progressDialogReboot.dismiss();
+            //   if (isAdded()) {
+            //close Dialog
+            progressDialogReboot.dismiss();
 
-                //softreboot phone
-                try {
-                    Process proc = Runtime.getRuntime()
-                            .exec(new String[]{"su", "-c", "busybox killall system_server"});
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            //softreboot phone
+            try {
+                Process proc = Runtime.getRuntime()
+                        .exec(new String[]{"su", "-c", "busybox killall system_server"});
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            // }
         }
     }
 
@@ -1207,9 +1204,14 @@ public class OverlayDetailActivity extends Fragment {
     }*/
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onBackPressed() {
+        supportFinishAfterTransition();
+    }
+
+    @Override
+    public void onDestroy() {
         releaseOpService();
+        super.onDestroy();
     }
 
 

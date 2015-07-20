@@ -92,12 +92,13 @@ public class PluginFragment extends Fragment {
     private void LoadRecyclerViewFabToolbar() {
         //create RecyclerView
         RecyclerView recyclerCardViewList = (RecyclerView) cordLayout.findViewById(R.id.cardList);
+
         recyclerCardViewList.setHasFixedSize(true);
         recyclerCardViewList.addOnItemTouchListener(
                 new RecyclerItemClickListener(getActivity(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        onListItemClick(position);
+                        onListItemClick(view, position);
                     }
                 })
         );
@@ -236,14 +237,12 @@ public class PluginFragment extends Fragment {
     }
 
     //open Plugin page after clicked on a cardview
-    protected void onListItemClick (int position) {
+    protected void onListItemClick (View view, int position) {
         if (!TestBoolean){
             String package2 = packages[position];
             String category = categories.get(position);
             if( category.length() > 0 ) {
-
-                ((menu) getActivity()).changeFragment2(category,package2);
-
+                ((menu) getActivity()).changeFragment2(view, category,package2);
             }
         }
         else{

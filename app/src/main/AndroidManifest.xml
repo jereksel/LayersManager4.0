@@ -94,6 +94,19 @@ xmlns:tools="http://schemas.android.com/tools"
             </intent-filter>
         </activity>
 
+        <activity
+                android:name=".OverlayDetailActivity"
+                android:label=""
+                android:theme="@style/Toolbar2"
+                android:parentActivityName=".menu">
+            <intent-filter>
+                <action android:name="android.intent.action.ABOUT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+
         <activity android:name=".activities.IntroActivity"
             android:noHistory="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>

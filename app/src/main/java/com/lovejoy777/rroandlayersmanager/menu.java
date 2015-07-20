@@ -13,23 +13,24 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.transition.*;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
-
-
-import com.lovejoy777.rroandlayersmanager.fragments.InstallFragment;
-import com.lovejoy777.rroandlayersmanager.activities.IntroActivity;
-import com.lovejoy777.rroandlayersmanager.fragments.UninstallFragment;
-import com.lovejoy777.rroandlayersmanager.fragments.BackupRestoreFragment;
 import com.lovejoy777.rroandlayersmanager.activities.AboutActivity;
 import com.lovejoy777.rroandlayersmanager.activities.DetailedTutorialActivity;
-import com.lovejoy777.rroandlayersmanager.fragments.PluginFragment;
+import com.lovejoy777.rroandlayersmanager.activities.IntroActivity;
 import com.lovejoy777.rroandlayersmanager.activities.SettingsActivity;
 import com.lovejoy777.rroandlayersmanager.commands.Commands;
+import com.lovejoy777.rroandlayersmanager.fragments.BackupRestoreFragment;
+import com.lovejoy777.rroandlayersmanager.fragments.InstallFragment;
+import com.lovejoy777.rroandlayersmanager.fragments.PluginFragment;
+import com.lovejoy777.rroandlayersmanager.fragments.UninstallFragment;
 import com.stericson.RootTools.RootTools;
 import com.stericson.RootTools.exceptions.RootDeniedException;
 import com.stericson.RootTools.execution.CommandCapture;
@@ -39,8 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
 
-public class menu extends AppCompatActivity
-{
+public class menu extends AppCompatActivity {
 
     public static final String ACTION_PICK_PLUGIN = "com.layers.plugins.PICK_OVERLAYS";
     static final String BUNDLE_EXTRAS_CATEGORY = "category";
@@ -49,10 +49,17 @@ public class menu extends AppCompatActivity
 
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_container);
+
+
+        //getWindow().setSharedElementExitTransition(TransitionInflater.from(this).inflateTransition(R.transition.my_transition));
+
+     //   getWindow().setExitTransition(new ChangeImageTransform());
+
+
         if (!RootTools.isAccessGiven()) {
 
             /*final View coordinatorLayoutView = findViewById(R.id.main_content2);
@@ -85,9 +92,9 @@ public class menu extends AppCompatActivity
         // Get the value for the run counter
         int counter = app_preferences.getInt("counter", 0);
 
-        if (counter < 1){
+        if (counter < 1) {
 
-            Intent intent = new Intent(this,IntroActivity.class);
+            Intent intent = new Intent(this, IntroActivity.class);
             startActivity(intent);
 
         }
@@ -121,13 +128,13 @@ public class menu extends AppCompatActivity
         switch (item.getItemId()) {
             case android.R.id.home:
                 Fragment currentFragment = menu.this.getFragmentManager().findFragmentById(R.id.fragment_container);
-                if (currentFragment instanceof OverlayDetailActivity||currentFragment instanceof InstallFragment){
+                if (currentFragment instanceof InstallFragment) {
                     FragmentManager fm = getFragmentManager();
                     fm.popBackStack();
                     Window window = getWindow();
                     window.setStatusBarColor(getResources().getColor(R.color.transparent));
                     mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                }else {
+                } else {
                     mDrawerLayout.openDrawer(GravityCompat.START);
                 }
                 return true;
@@ -147,7 +154,7 @@ public class menu extends AppCompatActivity
                         Bundle bndlanimation =
                                 ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.anni1, R.anim.anni2).toBundle();
                         int id = menuItem.getItemId();
-                        switch (id){
+                        switch (id) {
                             case R.id.nav_home:
                                 changeFragment(1);
                                 getSupportActionBar().setElevation(0);
@@ -175,7 +182,7 @@ public class menu extends AppCompatActivity
                                 break;
                             case R.id.nav_showcase:
                                 boolean installed = appInstalledOrNot("com.lovejoy777.showcase");
-                                if(installed) {
+                                if (installed) {
                                     //This intent will help you to launch if the package is already installed
                                     Intent intent = new Intent();
                                     intent.setComponent(new ComponentName("com.lovejoy777.showcase", "com.lovejoy777.showcase.MainActivity1"));
@@ -191,19 +198,19 @@ public class menu extends AppCompatActivity
                                 startActivity(settings, bndlanimation);
                                 break;
                             case R.id.nav_playStore:
-                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/search?q=Layers+Theme&c=apps&docType=1&sp=CAFiDgoMTGF5ZXJzIFRoZW1legIYAIoBAggB:S:ANO1ljK_ZAY")),bndlanimation);
+                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/search?q=Layers+Theme&c=apps&docType=1&sp=CAFiDgoMTGF5ZXJzIFRoZW1legIYAIoBAggB:S:ANO1ljK_ZAY")), bndlanimation);
                                 break;
                         }
                         return false;
                     }
-        });
+                });
     }
 
     public void changeFragment(int position) {
         Fragment fragment = null;
         Bundle args = new Bundle();
         FragmentManager fragmentManager = getFragmentManager();
-        switch (position){
+        switch (position) {
             case 1:
                 fragment = new PluginFragment();
                 break;
@@ -213,7 +220,8 @@ public class menu extends AppCompatActivity
             case 3:
                 fragment = new BackupRestoreFragment();
                 break;
-            case 4: fragment = new InstallFragment();
+            case 4:
+                fragment = new InstallFragment();
                 break;
         }
 
@@ -224,10 +232,10 @@ public class menu extends AppCompatActivity
                     .addToBackStack("test")
                     .replace(R.id.fragment_container, fragment)
                     .commit();
-                    mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
 
-        }else{
+        } else {
             fragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, fragment)
                     .commit();
@@ -236,22 +244,39 @@ public class menu extends AppCompatActivity
 
     }
 
-    public void changeFragment2(String category, String package2){
-        Fragment fragment = null;
+    public void changeFragment2(View view, String category, String package2) {
+        Intent intent;
         Bundle args = new Bundle();
+
+        View image = view.findViewById(R.id.iv_themeImage);
+
+        image.setTransitionName("icon");
+
+        ActivityOptionsCompat options =
+                ActivityOptionsCompat
+                        .makeSceneTransitionAnimation(this, image, "icon");
+
         args.putString(BUNDLE_EXTRAS_CATEGORY, category);
         args.putString(BUNDLE_EXTRAS_PACKAGENAME, package2);
-        fragment = new OverlayDetailActivity();
+        intent = new Intent(this, OverlayDetailActivity.class);
+        intent.putExtras(args);
 
-        fragment.setArguments(args);
+
+        startActivity(intent);
 
 
+        // fragment.setArguments(args);
+
+
+/*
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .addToBackStack("test")
                 .replace(R.id.fragment_container, fragment)
                 .commit();
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
+*/
     }
 
 
@@ -261,15 +286,14 @@ public class menu extends AppCompatActivity
         try {
             pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
             app_installed = true;
-        }
-        catch (PackageManager.NameNotFoundException e) {
+        } catch (PackageManager.NameNotFoundException e) {
             app_installed = false;
         }
         return app_installed;
     }
 
 
-    private void createImportantDirectories(){
+    private void createImportantDirectories() {
         String sdOverlays = Environment.getExternalStorageDirectory() + "/Overlays";
         String sdcard = Environment.getExternalStorageDirectory() + "";
 
@@ -290,21 +314,21 @@ public class menu extends AppCompatActivity
             }
         }
 
-            String sdOverlays1 = Environment.getExternalStorageDirectory() + "/Overlays/Backup";
-            // CREATES /SDCARD/OVERLAYS/BACKUP
-            File dir1 = new File(sdOverlays1);
-            if (!dir1.exists() && !dir1.isDirectory()) {
-                CommandCapture command4 = new CommandCapture(0, "mkdir " + sdOverlays1);
-                try {
-                    RootTools.getShell(true).add(command4);
-                    while (!command4.isFinished()) {
-                        Thread.sleep(1);
-                    }
-
-                } catch (IOException | TimeoutException | InterruptedException | RootDeniedException e) {
-                    e.printStackTrace();
+        String sdOverlays1 = Environment.getExternalStorageDirectory() + "/Overlays/Backup";
+        // CREATES /SDCARD/OVERLAYS/BACKUP
+        File dir1 = new File(sdOverlays1);
+        if (!dir1.exists() && !dir1.isDirectory()) {
+            CommandCapture command4 = new CommandCapture(0, "mkdir " + sdOverlays1);
+            try {
+                RootTools.getShell(true).add(command4);
+                while (!command4.isFinished()) {
+                    Thread.sleep(1);
                 }
+
+            } catch (IOException | TimeoutException | InterruptedException | RootDeniedException e) {
+                e.printStackTrace();
             }
+        }
 
         RootTools.remount("/system", "RW");
         String vendover = "/vendor/overlay";
@@ -328,19 +352,19 @@ public class menu extends AppCompatActivity
     public void onBackPressed() {
         FragmentManager fm = getFragmentManager();
         Fragment currentFragment = menu.this.getFragmentManager().findFragmentById(R.id.fragment_container);
-        if (currentFragment instanceof OverlayDetailActivity ||currentFragment instanceof InstallFragment ) {
+        if (currentFragment instanceof InstallFragment) {
             fm.popBackStack();
             Window window = getWindow();
             window.setStatusBarColor(getResources().getColor(R.color.transparent));
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             //changeFragment(1);
-        }else {
+        } else {
             super.onBackPressed();
         }
 
     }
 
-    public void InstallOverlays(Context context,ArrayList<String> paths2) {
+    public void InstallOverlays(Context context, ArrayList<String> paths2) {
         Commands command = new Commands();
         command.InstallOverlays(menu.this, paths2);
     }
